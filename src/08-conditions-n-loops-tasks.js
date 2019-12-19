@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 /* *************************************************************************************************
  *                                                                                                *
  * Plese read the following tutorial before implementing tasks:                                   *
@@ -219,8 +220,10 @@ function findFirstSingleChar(str) {
  *   5, 3, true, true   => '[3, 5]'
  *
  */
-function getIntervalString(/* a, b, isStartIncluded, isEndIncluded */) {
-  throw new Error('Not implemented');
+function getIntervalString(a, b, isStartIncluded, isEndIncluded) {
+  const start = (isStartIncluded) ? '[' : '(';
+  const end = (isEndIncluded) ? ']' : ')';
+  return (a < b) ? `${start + a}, ${b}${end}` : `${start + b}, ${a}${end}`;
 }
 
 
@@ -236,8 +239,8 @@ function getIntervalString(/* a, b, isStartIncluded, isEndIncluded */) {
  * 'rotator' => 'rotator'
  * 'noon' => 'noon'
  */
-function reverseString(/* str */) {
-  throw new Error('Not implemented');
+function reverseString(str) {
+  return str.split('').reverse().join('');
 }
 
 
@@ -253,8 +256,8 @@ function reverseString(/* str */) {
  *   87354 => 45378
  *   34143 => 34143
  */
-function reverseInteger(/* num */) {
-  throw new Error('Not implemented');
+function reverseInteger(num) {
+  return +num.toString().split('').reverse().join('');
 }
 
 
@@ -278,8 +281,18 @@ function reverseInteger(/* num */) {
  *   5436468789016589 => false
  *   4916123456789012 => false
  */
-function isCreditCardNumber(/* ccn */) {
-  throw new Error('Not implemented');
+function isCreditCardNumber(ccn) {
+  const digits = String(ccn);
+  let sum = 0;
+  let even = false;
+  for (let i = digits.length - 1; i >= 0; i -= 1) {
+    const dig = parseInt(digits[i], 10);
+    let doubled = dig * 2;
+    if (doubled > 9) doubled -= 9;
+    sum += (even) ? doubled : dig;
+    even = !even;
+  }
+  return sum % 10 === 0;
 }
 
 /**
@@ -296,8 +309,13 @@ function isCreditCardNumber(/* ccn */) {
  *   10000 ( 1+0+0+0+0 = 1 ) => 1
  *   165536 (1+6+5+5+3+6 = 26,  2+6 = 8) => 8
  */
-function getDigitalRoot(/* num */) {
-  throw new Error('Not implemented');
+function getDigitalRoot(num) {
+  let arr = num.toString().split('');
+  while (arr.length > 1) {
+    const result = arr.reduce((accum, item) => accum + +item, 0);
+    arr = result.toString().split('');
+  }
+  return +arr[0];
 }
 
 
@@ -322,8 +340,23 @@ function getDigitalRoot(/* num */) {
  *   '{)' = false
  *   '{[(<{[]}>)]}' = true
  */
-function isBracketsBalanced(/* str */) {
-  throw new Error('Not implemented');
+function isBracketsBalanced(str) {
+  function isTrue(elem1, elem2) {
+    let result = false;
+    if (elem1 === '[' && elem2 === ']') result = true;
+    if (elem1 === '(' && elem2 === ')') result = true;
+    if (elem1 === '{' && elem2 === '}') result = true;
+    if (elem1 === '<' && elem2 === '>') result = true;
+    return result;
+  }
+  const arr = str.split('');
+  for (let i = 0; i < arr.length - 1; i += 1) {
+    if (isTrue(arr[i], arr[i + 1])) {
+      arr.splice(i, 2);
+      i = -1;
+    }
+  }
+  return (arr.length === 0);
 }
 
 
@@ -347,8 +380,8 @@ function isBracketsBalanced(/* str */) {
  *    365, 4  => '11231'
  *    365, 10 => '365'
  */
-function toNaryString(/* num, n */) {
-  throw new Error('Not implemented');
+function toNaryString(num, n) {
+  return num.toString(n);
 }
 
 
@@ -364,8 +397,30 @@ function toNaryString(/* num, n */) {
  *   ['/web/assets/style.css', '/.bin/mocha',  '/read.me'] => '/'
  *   ['/web/favicon.ico', '/web-scripts/dump', '/webalizer/logs'] => '/'
  */
-function getCommonDirectoryPath(/* pathes */) {
-  throw new Error('Not implemented');
+function getCommonDirectoryPath(pathes) {
+  let result = '';
+  let commonStr = '';
+  let slashInd = null;
+  for (let i = 0; i < pathes[0].length; i += 1) {
+    let count = 0;
+    for (let j = 1; j < pathes.length; j += 1) {
+      if (pathes[0][i] === pathes[j][i]) {
+        count += 1;
+        if (pathes[0][i] === '/') slashInd = i;
+      }
+    }
+    if (count === pathes.length - 1) {
+      commonStr += pathes[0][i];
+    } else {
+      break;
+    }
+  }
+  if (commonStr === '' || commonStr[commonStr.length - 1] === '/') {
+    result += commonStr;
+  } else if (slashInd !== null) {
+    result = commonStr.substring(0, slashInd + 1);
+  }
+  return result;
 }
 
 
@@ -387,8 +442,19 @@ function getCommonDirectoryPath(/* pathes */) {
  *                         [ 6 ]]
  *
  */
-function getMatrixProduct(/* m1, m2 */) {
-  throw new Error('Not implemented');
+function getMatrixProduct(m1, m2) {
+  let result = Array.from({ length: m1.length }, () => []);
+  result = result.map(() => Array.from({ length: m2[0].length }, () => 0));
+  for (let i = 0; i < m1.length; i += 1) {
+    for (let j = 0; j < m2[0].length; j += 1) {
+      let sum = 0;
+      for (let k = 0; k < m1[0].length; k += 1) {
+        sum += m1[i][k] * m2[k][j];
+        result[i][j] = sum;
+      }
+    }
+  }
+  return result;
 }
 
 
@@ -422,8 +488,25 @@ function getMatrixProduct(/* m1, m2 */) {
  *    [    ,   ,    ]]
  *
  */
-function evaluateTicTacToePosition(/* position */) {
-  throw new Error('Not implemented');
+function evaluateTicTacToePosition(position) {
+  let result;
+  if (position[0][0] === position[0][1]
+    && position[0][0] === position[0][2]) result = position[0][0];
+  if (position[1][0] === position[1][1]
+    && position[1][0] === position[1][2]) result = position[1][0];
+  if (position[2][0] === position[2][1]
+    && position[2][0] === position[2][2]) result = position[2][0];
+  if (position[0][0] === position[1][0]
+    && position[0][0] === position[2][0]) result = position[0][0];
+  if (position[0][1] === position[1][1]
+    && position[0][1] === position[2][1]) result = position[0][1];
+  if (position[0][2] === position[1][2]
+    && position[0][2] === position[2][2]) result = position[0][2];
+  if (position[0][0] === position[1][1]
+    && position[0][0] === position[2][2]) result = position[0][0];
+  if (position[2][0] === position[1][1]
+    && position[2][0] === position[0][2]) result = position[2][0];
+  return result;
 }
 
 
