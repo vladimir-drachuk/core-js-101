@@ -1,3 +1,5 @@
+/* eslint-disable no-restricted-properties */
+/* eslint-disable prefer-rest-params */
 /* *********************************************************************************************
  *                                                                                             *
  * Plese read the following tutorial before implementing tasks:                                *
@@ -69,10 +71,9 @@ function getPowerFunction(exponent) {
  *   getPolynom()      => null
  */
 function getPolynom() {
-  function qqq(...args) {
-    return 
-  }
-
+  const arr = Array.from(arguments).reverse();
+  return (arguments.length === 0) ? null : (x) => arr.reduce((accum, current, i) => accum + current
+   * Math.pow(x, i));
 }
 
 
@@ -90,8 +91,19 @@ function getPolynom() {
  *   ...
  *   memoizer() => the same random number  (next run, returns the previous cached result)
  */
-function memoize(/* func */) {
-  throw new Error('Not implemented');
+function memoize(func) {
+  const obj = {};
+  return (...args) => {
+    const argument = JSON.stringify(...args);
+    let result = 0;
+    if (argument in obj) {
+      result = obj[argument];
+    } else {
+      obj[argument] = func();
+      result = obj[argument];
+    }
+    return result;
+  };
 }
 
 
@@ -110,8 +122,16 @@ function memoize(/* func */) {
  * }, 2);
  * retryer() => 2
  */
-function retry(/* func, attempts */) {
-  throw new Error('Not implemented');
+function retry(func, attempts) {
+  // eslint-disable-next-line consistent-return
+  return () => {
+    for (let i = 0; i <= attempts; i += 1) {
+      try {
+        return func();
+        // eslint-disable-next-line no-empty
+      } catch (error) {}
+    }
+  };
 }
 
 
@@ -138,8 +158,17 @@ function retry(/* func, attempts */) {
  * cos(3.141592653589793) ends
  *
  */
-function logger(/* func, logFunc */) {
-  throw new Error('Not implemented');
+function logger(func, logFunc) {
+  return function qq() {
+    const args = Array.from(arguments);
+    let str = JSON.stringify(args);
+    str = str.slice(1, -1);
+    str = `${func.name}(${str})`;
+    logFunc(`${str} starts`);
+    const result = func.apply(this, args);
+    logFunc(`${str} ends`);
+    return result;
+  };
 }
 
 
@@ -156,8 +185,13 @@ function logger(/* func, logFunc */) {
  *   partialUsingArguments(fn, 'a','b','c')('d') => 'abcd'
  *   partialUsingArguments(fn, 'a','b','c','d')() => 'abcd'
  */
-function partialUsingArguments(/* fn, ...args1 */) {
-  throw new Error('Not implemented');
+function partialUsingArguments(fn, ...args1) {
+  const arg1 = Array.from(args1);
+  return function qq(...args2) {
+    const arg2 = Array.from(args2);
+    const args = arg1.concat(arg2);
+    return fn.apply(this, args);
+  };
 }
 
 
@@ -178,8 +212,12 @@ function partialUsingArguments(/* fn, ...args1 */) {
  *   getId4() => 7
  *   getId10() => 11
  */
-function getIdGeneratorFunction(/* startFrom */) {
-  throw new Error('Not implemented');
+function getIdGeneratorFunction(startFrom) {
+  let start = startFrom - 1;
+  return () => {
+    start += 1;
+    return start;
+  };
 }
 
 
