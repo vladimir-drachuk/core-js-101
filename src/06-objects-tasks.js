@@ -118,33 +118,127 @@ function fromJSON(proto, json) {
  *  For more examples see unit tests.
  */
 
+function checkCorrectOrder(arr) {
+  arr.forEach((item) => {
+    if ((item) && !Array.isArray(item)) {
+      throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    } else if (Array.isArray(item) && !!(item[0])) throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+  });
+}
+
+class Selector {
+  constructor() {
+    this.selector = {
+      class: [],
+      attr: [],
+      pseudoClass: [],
+    };
+  }
+
+  element(value) {
+    checkCorrectOrder([
+      this.selector.id,
+      this.selector.class,
+      this.selector.attr,
+      this.selector.pseudoClass,
+      this.selector.pseudoElement]);
+    if (this.selector.element) throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    this.selector.element = value;
+    return this;
+  }
+
+  id(value) {
+    checkCorrectOrder([
+      this.selector.class,
+      this.selector.attr,
+      this.selector.pseudoClass,
+      this.selector.pseudoElement]);
+    if (this.selector.id) throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    this.selector.id = `#${value}`;
+    return this;
+  }
+
+  class(value) {
+    checkCorrectOrder([
+      this.selector.attr,
+      this.selector.pseudoClass,
+      this.selector.pseudoElement]);
+    this.selector.class.push(`.${value}`);
+    return this;
+  }
+
+  attr(value) {
+    checkCorrectOrder([
+      this.selector.pseudoClass,
+      this.selector.pseudoElement]);
+    this.selector.attr.push(`[${value}]`);
+    return this;
+  }
+
+  pseudoClass(value) {
+    checkCorrectOrder([
+      this.selector.pseudoElement]);
+    this.selector.pseudoClass.push(`:${value}`);
+    return this;
+  }
+
+  pseudoElement(value) {
+    if (this.selector.pseudoElement) throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    this.selector.pseudoElement = `::${value}`;
+    return this;
+  }
+
+  stringify() {
+    const element = this.selector.element || '';
+    const id = this.selector.id || '';
+    const class1 = (this.selector.class[0]) ? this.selector.class.reduce((accum, item) => accum + item, '') : '';
+    const attr = (this.selector.attr[0]) ? this.selector.attr.reduce((accum, item) => accum + item, '') : '';
+    const pClass = (this.selector.pseudoClass[0]) ? this.selector.pseudoClass.reduce((accum, item) => accum + item, '') : '';
+    const pElem = this.selector.pseudoElement || '';
+    return element + id + class1 + attr + pClass + pElem;
+  }
+}
+
+function Combainer(value) {
+  this.combineResult = value;
+  this.stringify = function () {
+    return this.combineResult;
+  };
+}
+
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+
+  element(value) {
+    return new Selector().element(value);
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    return new Selector().id(value);
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    return new Selector().class(value);
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    return new Selector().attr(value);
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    return new Selector().pseudoClass(value);
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  pseudoElement(value) {
+    return new Selector().pseudoElement(value);
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  stringify() {
+    return new Selector().stringify();
+  },
+
+  combine(selector1, combinator, selector2) {
+    const result = `${selector1.stringify()} ${combinator} ${selector2.stringify()}`;
+    return new Combainer(result);
   },
 };
 

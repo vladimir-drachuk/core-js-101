@@ -129,7 +129,7 @@ function retry(func, attempts) {
       try {
         return func();
         // eslint-disable-next-line no-empty
-      } catch (error) {}
+      } catch (e) {}
     }
   };
 }
